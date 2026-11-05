@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love You ❤️</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #080008;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  color: white;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 100%;
+  pointer-events: none;
+}
+
+h1 {
+  color: #ff1744;
+  font-size: clamp(35px, 8vw, 65px);
+  text-shadow: 0 0 15px #ff1744,
+               0 0 35px #ff1744;
+  animation: pulse 1.5s infinite;
+}
+
+p {
+  color: #ff9eae;
+  margin-top: 12px;
+  letter-spacing: 4px;
+  font-size: 12px;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+.music-button {
+  position: fixed;
+  bottom: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 13px 25px;
+  border: 1px solid #ff1744;
+  border-radius: 30px;
+  background: rgba(255, 23, 68, 0.15);
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 0 15px #ff174455;
+}
+
+.music-button:hover {
+  background: #ff1744;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="heart"></canvas>
+
+<div class="content">
+  <h1>Love You ❤️</h1>
+  <p>YOU ARE SPECIAL</p>
+</div>
+
+<button class="music-button" id="musicBtn">
+  ▶ Play Music
+</button>
+
+<audio id="music" loop>
+  <source src="love_you.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const canvas = document.getElementById("heart");
+const ctx = canvas.getContext("2d");
+
+let particles = [];
+let width, height;
+
+function resize() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+}
+
+window.addEventListener("resize", resize);
+resize();
+
+function heartPoint(t) {
+  const x = 16 * Math.pow(Math.sin(t), 3);
+  const y = -(13 * Math.cos(t)
+    - 5 * Math.cos(2*t)
+    - 2 * Math.cos(3*t)
+    - Math.cos(4*t));
+
+  return { x, y };
+}
+
+class Particle {
+  constructor() {
+    this.t = Math.random() * Math.PI * 2;
+    this.scale = 11 + Math.random() * 8;
+    this.size = Math.random() * 2.5 + 1;
+    this.alpha = Math.random() * 0.7 + 0.3;
+    this.speed = Math.random() * 0.02 + 0.002;
+  }
+
+  draw() {
+    const point = heartPoint(this.t);
+    const x = width / 2 + point.x * this.scale;
+    const y = height / 2 + point.y * this.scale;
+
+    ctx.beginPath();
+    ctx.arc(x, y, this.size, 0, Math.PI * 2);
+
+    ctx.fillStyle = `rgba(255, ${Math.floor(
+      20 + Math.random() * 50
+    )}, ${Math.floor(40 + Math.random() * 70)}, ${this.alpha})`;
+
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = "#ff1744";
+    ctx.fill();
+
+    this.t += this.speed;
+    if (this.t > Math.PI * 2) {
+      this.t = 0;
+    }
+  }
+}
+
+for (let i = 0; i < 450; i++) {
+  particles.push(new Particle());
+}
+
+function animate() {
+  ctx.clearRect(0, 0, width, height);
+
+  particles.forEach(particle => particle.draw());
+
+  ctx.shadowBlur = 0;
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+// Music controls
+const music = document.getElementById("music");
+const musicBtn = document.getElementById("musicBtn");
+
+musicBtn.addEventListener("click", async () => {
+  if (music.paused) {
+    try {
+      await music.play();
+      musicBtn.textContent = "Ⅱ Pause Music";
+    } catch (error) {
+      musicBtn.textContent = "Musik belum tersedia";
+    }
+  } else {
+    music.pause();
+    musicBtn.textContent = "▶ Play Music";
+  }
+});
+</script>
+
+</body>
+</html>
